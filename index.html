@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ma Veille</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header__inner">
+      <span class="header__logo">Ma Veille</span>
+      <button class="btn btn--primary" id="openModalBtn">＋ Ajouter</button>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- Barre de recherche -->
+    <div class="search-bar">
+      <svg class="search-bar__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
+      </svg>
+      <input
+        type="search"
+        id="searchInput"
+        class="search-bar__input"
+        placeholder="Rechercher dans vos ressources…"
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Filtres catégories -->
+    <div class="filters" id="filters">
+      <button class="filter-pill filter-pill--active" data-category="tous">Tous</button>
+      <button class="filter-pill" data-category="article">Articles</button>
+      <button class="filter-pill" data-category="outil">Outils</button>
+      <button class="filter-pill" data-category="vidéo">Vidéos</button>
+      <button class="filter-pill" data-category="autre">Autres</button>
+    </div>
+
+    <!-- Compteur de résultats -->
+    <p class="results-count" id="resultsCount"></p>
+
+    <!-- Grille de cartes -->
+    <div class="grid" id="cardsGrid"></div>
+
+    <!-- État vide -->
+    <div class="empty-state" id="emptyState" hidden>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <p>Aucune ressource trouvée</p>
+      <span>Essayez un autre mot-clé ou une autre catégorie.</span>
+    </div>
+
+  </main>
+
+  <!-- ===== MODAL AJOUT ===== -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+      <div class="modal__header">
+        <h2 class="modal__title" id="modalTitle">Ajouter une ressource</h2>
+        <button class="modal__close" id="closeModalBtn" aria-label="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+          </svg>
+        </button>
+      </div>
+
+      <form class="modal__form" id="addForm" novalidate>
+
+        <!-- URL + récupération -->
+        <div class="form-group">
+          <label class="form-label" for="inputUrl">URL <span class="required">*</span></label>
+          <div class="url-row">
+            <input
+              type="url"
+              id="inputUrl"
+              class="form-input"
+              placeholder="https://exemple.com/article"
+              required
+            />
+            <button type="button" class="btn btn--secondary btn--sm" id="fetchInfoBtn">
+              <span id="fetchBtnText">Récupérer les infos</span>
+              <span id="fetchBtnLoader" class="spinner" hidden></span>
+            </button>
+          </div>
+          <p class="form-hint">Collez une URL puis cliquez sur « Récupérer les infos » pour préremplir les champs.</p>
+        </div>
+
+        <!-- Titre -->
+        <div class="form-group">
+          <label class="form-label" for="inputTitle">Titre <span class="required">*</span></label>
+          <input
+            type="text"
+            id="inputTitle"
+            class="form-input"
+            placeholder="Titre de la ressource"
+            required
+          />
+        </div>
+
+        <!-- Catégorie -->
+        <div class="form-group">
+          <label class="form-label" for="inputCategory">Catégorie</label>
+          <select id="inputCategory" class="form-select">
+            <option value="article">Article</option>
+            <option value="outil">Outil</option>
+            <option value="vidéo">Vidéo</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <label class="form-label" for="inputNotes">Notes personnelles</label>
+          <textarea
+            id="inputNotes"
+            class="form-textarea"
+            rows="3"
+            placeholder="Ce que vous retenez, pourquoi vous sauvegardez cette ressource…"
+          ></textarea>
+        </div>
+
+        <!-- Image preview -->
+        <div class="form-group" id="imagePreviewGroup" hidden>
+          <label class="form-label">Aperçu de l'image</label>
+          <img id="imagePreview" class="image-preview" src="" alt="Aperçu" />
+          <input type="hidden" id="inputImage" />
+        </div>
+
+        <!-- Actions -->
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" id="cancelModalBtn">Annuler</button>
+          <button type="submit" class="btn btn--primary">Sauvegarder</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
