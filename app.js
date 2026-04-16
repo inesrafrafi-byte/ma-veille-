@@ -5,123 +5,51 @@
 'use strict';
 
 // =====================================================
-// DONNÉES DE DÉMONSTRATION
-// Ces données seront remplacées par Supabase (Module 1)
+// SUPABASE — Client
 // =====================================================
-const MOCK_DATA = [
-  {
-    id: 1,
-    url: 'https://css-tricks.com/a-complete-guide-to-flexbox/',
-    title: 'A Complete Guide to Flexbox',
-    category: 'article',
-    notes: 'La référence absolue pour Flexbox. Idéal pour revoir les alignements et le comportement des axes principal et transversal.',
-    image: 'https://css-tricks.com/wp-content/uploads/2022/02/css-flexbox-poster.png',
-    date: '2026-04-10',
-  },
-  {
-    id: 2,
-    url: 'https://developer.mozilla.org/fr/docs/Web/CSS/CSS_grid_layout',
-    title: 'CSS Grid Layout — MDN Web Docs',
-    category: 'article',
-    notes: 'Documentation officielle de CSS Grid. Bien plus puissant que Flexbox pour les mises en page à deux dimensions.',
-    image: '',
-    date: '2026-04-08',
-  },
-  {
-    id: 3,
-    url: 'https://github.com/supabase/supabase',
-    title: 'Supabase — The Open Source Firebase Alternative',
-    category: 'outil',
-    notes: 'Backend as a service avec PostgreSQL, Auth, Storage et Realtime. On l\'utilise dans ce projet pour persister les liens.',
-    image: 'https://repository-images.githubusercontent.com/221999344/6a115600-7c3e-11eb-9b25-7b2c64b00d40',
-    date: '2026-04-05',
-  },
-  {
-    id: 4,
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    title: 'JavaScript Async/Await — Full Tutorial',
-    category: 'vidéo',
-    notes: 'Excellente explication des promesses et de async/await avec des exemples concrets d\'appels API.',
-    image: '',
-    date: '2026-04-03',
-  },
-  {
-    id: 5,
-    url: 'https://vitejs.dev/',
-    title: 'Vite — Next Generation Frontend Tooling',
-    category: 'outil',
-    notes: 'Build tool ultra-rapide grâce aux ES modules natifs. Remplace avantageusement Webpack pour les nouveaux projets.',
-    image: 'https://vitejs.dev/og-image-announcing-vite6.png',
-    date: '2026-03-28',
-  },
-];
-
-// =====================================================
-// SUPABASE — À compléter lors du Module Supabase
-// =====================================================
-// Quand vous serez prêt·e à connecter la base de données :
-//   1. Créez un projet sur https://supabase.com
-//   2. Copiez SUPABASE_URL et SUPABASE_ANON_KEY dans votre .env
-//   3. Remplacez les stubs ci-dessous par de vrais appels Supabase
-//
-// Exemple de table SQL à créer dans Supabase :
-//   CREATE TABLE links (
-//     id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-//     url        text NOT NULL,
-//     title      text NOT NULL,
-//     category   text DEFAULT 'autre',
-//     notes      text,
-//     image      text,
-//     date       date DEFAULT now()
-//   );
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Récupère tous les liens sauvegardés.
- *
- * TODO (Module Supabase) : remplacer par
- *   const { data, error } = await supabase.from('links').select('*').order('date', { ascending: false });
- *   if (error) throw error;
- *   return data;
  */
 async function fetchLinks() {
-  // Simule un léger délai réseau (à supprimer quand Supabase sera connecté)
-  await new Promise(r => setTimeout(r, 0));
-  return [...localLinks];
+  const { data, error } = await db
+    .from('links')
+    .select('*')
+    .order('date', { ascending: false });
+  if (error) throw error;
+  return data;
 }
 
 /**
  * Insère un nouveau lien en base de données.
  * @param {{ url, title, category, notes, image, date }} data
- *
- * TODO (Module Supabase) : remplacer par
- *   const { data: inserted, error } = await supabase.from('links').insert([linkData]).select().single();
- *   if (error) throw error;
- *   return inserted;
  */
 async function insertLink(data) {
-  const newLink = { ...data, id: Date.now() };
-  localLinks.unshift(newLink);
-  return newLink;
+  const { data: inserted, error } = await db
+    .from('links')
+    .insert([data])
+    .select()
+    .single();
+  if (error) throw error;
+  return inserted;
 }
 
 /**
  * Supprime un lien par son identifiant.
  * @param {number} id
- *
- * TODO (Module Supabase) : remplacer par
- *   const { error } = await supabase.from('links').delete().eq('id', id);
- *   if (error) throw error;
  */
 async function deleteLink(id) {
-  localLinks = localLinks.filter(link => link.id !== id);
+  const { error } = await db
+    .from('links')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
 }
 
 // =====================================================
 // ÉTAT LOCAL DE L'APPLICATION
 // =====================================================
-
-/** Copie de travail des données (initialisée depuis MOCK_DATA) */
-let localLinks = [...MOCK_DATA];
 
 /** Catégorie active dans les filtres */
 let activeCategory = 'tous';
