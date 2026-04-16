@@ -3,8 +3,6 @@
 .env.local
 .env.*.local
 
-# Clés API locales
-config.js
 
 # Dépendances (si vous ajoutez npm plus tard)
 node_modules/
